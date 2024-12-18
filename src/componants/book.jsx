@@ -1,25 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { getBooks } from "./bookService";
+import axios from "axios";
+import toast, { Toaster } from 'react-hot-toast';
 
 const Book = () => {
     const [books, setBooks] = useState([]);
 
-    // Fetch books on component mount
-    useEffect(() => {
-        const fetchBooks = async () => {
-            try {
-                const data = await getBooks();
-                setBooks(data);
-            } catch (error) {
-                console.error("Error fetching books:", error);
-            }
-        };
-        fetchBooks();
-    }, []);
+    const apiCall = () => {
+        axios
+            .get('http://localhost:3000/app/books')
+            .then((response) => {
+                console.log("response.data:", response.data);
+                setBooks(response.data);
+            })
+            .catch((error) => {
+                console.error('Error fetching books:', error);
+            });
+    };
 
+    const notify = (message) => toast.success(message);
+    const handleDeleteBook = (book) => {
+        axios
+            .delete(`http://localhost:3000/app/books/${book}`)
+            .then((response) => {
+                console.log("response", response)
+                notify('Book deleted successfully!');
+                apiCall()
+            })
+            .catch((error) => {
+                console.error('Error fetching books:', error);
+                toast.error('Failed to delete the book.');
+            });
+
+
+    }
+
+    useEffect(() => {
+        apiCall();
+    }, []);
 
     return (
         <>
+            <Toaster position="bottom-right" reverseOrder={true}/>
             <div className="overflow-x-auto">
                 <table className="table">
                     <thead>
@@ -32,11 +53,13 @@ const Book = () => {
                             <th>Book title</th>
                             <th>Price</th>
                             <th>Full Description</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
+
                     <tbody>
-                        {books.map((book) => (
-                            <tr>
+                        {books.map((book, index) => (
+                            <tr key={book._id}>
                                 <th>
                                     <label>
                                         <input type="checkbox" className="checkbox" />
@@ -61,63 +84,55 @@ const Book = () => {
                                 <td>{book.price}</td>
 
                                 <th>
-                                    <button
-                                        className="btn btn-ghost btn-xs"
-                                        onClick={() =>
-                                            document.getElementById("my_modal_2").showModal()
-                                        }
-                                    >
-                                        Description
-                                    </button>
-                                    <dialog id="my_modal_2" className="modal">
+                                    <button className="btn btn-ghost btn-xs" onClick={() => {
+                                        console.log(index, book.description)
+                                        document.getElementById(`${index}-my_modal_2`).showModal()
+                                    }}>Description</button>
+
+                                    <dialog id={`${index}-my_modal_2`} className="modal">
                                         <div className="modal-box">
                                             <h3 className="font-bold text-lg">{book.title}</h3>
                                             <p className="py-4">{book.description}</p>
+                                            {console.log("book.description", book.description)}
                                         </div>
                                         <form method="dialog" className="modal-backdrop">
                                             <button>close</button>
                                         </form>
                                     </dialog>
                                 </th>
+
+                                <td>
+                                    <button className="btn btn-error" onClick={() => document.getElementById(`${index}-my_modal_3`).showModal()}>Delete</button>
+
+                                    <dialog id={`${index}-my_modal_3`} className="modal">
+                                        <div className="modal-box">
+                                            <div className="card bg-base-100 image-full w-96 shadow-xl">
+                                                <figure>
+                                                    <img
+                                                        src={book.image}
+                                                        alt="Shoes" />
+                                                </figure>
+                                                <div className="card-body">
+                                                    <h2 className="card-title">{book.title}</h2>
+                                                    <p>{book.author}</p>
+                                                    <div className="card-actions justify-end">
+                                                        <div className="modal-action">
+                                                            <button className="btn btn-error" onClick={() => handleDeleteBook(book._id)}>Conform Delete</button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <form method="dialog" className="modal-backdrop">
+                                            <button>close</button>
+                                        </form>
+                                    </dialog>
+
+
+                                </td>
                             </tr>
                         ))}
-                        {/* <tr>
-                        <th>
-                            <label>
-                                <input type="checkbox" className="checkbox" />
-                            </label>
-                        </th>
-                        <td>
-                            <div className="flex items-center gap-3">
-                                <div className="avatar">
-                                    <div className="mask mask-squircle h-12 w-12">
-                                        <img
-                                            src="https://img.daisyui.com/images/profile/demo/2@94.webp"
-                                            alt="Avatar Tailwind CSS Component"
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <div className="font-bold">Java Script</div>
-                                    <div className="text-sm opacity-50">JS</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>2000</td>
-
-                        <th>
-                            <button className="btn btn-ghost btn-xs" onClick={() => document.getElementById('my_modal_2').showModal()}>Description</button>
-                            <dialog id="my_modal_2" className="modal">
-                                <div className="modal-box">
-                                    <h3 className="font-bold text-lg">book title</h3>
-                                    <p className="py-4">this is book description</p>
-                                </div>
-                                <form method="dialog" className="modal-backdrop">
-                                    <button>close</button>
-                                </form>
-                            </dialog>
-                        </th>
-                    </tr> */}
                     </tbody>
                 </table>
             </div>
@@ -126,3 +141,4 @@ const Book = () => {
 };
 
 export default Book;
+
