@@ -1,24 +1,22 @@
-import React from 'react'
-import BookForm from './bookForm'
+import React from 'react';
+import BookForm from './bookForm';
 
 const BookHeader = () => {
     return (
         <>
-            <header class="pb-6  lg:pb-0 bg-[#1D232A] border-b border-b-black">
-                <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <nav class="flex items-center justify-between h-16 lg:h-20">
-                        <div class="flex-shrink-0">
-                            <a href="#" title="" class="flex text-[30px] font-bold text-black ">Books</a>
+            <header className="pb-6 lg:pb-0 bg-[#1D232A] border-b border-b-black">
+                <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+                    <nav className="flex items-center justify-between h-16 lg:h-20">
+                        <div className="flex-shrink-0">
+                            <a href="#" title="" className="flex text-[30px] font-bold text-white">Books</a>
                         </div>                    
 
-                        <BookForm/>
+                        <BookForm />
                     </nav>
-
                 </div>
             </header>
-
         </>
-    )
-}
+    );
+};
 
-export default BookHeader
+export default BookHeader;

@@ -79,7 +79,6 @@ const BookForm = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-
             axios.post('http://localhost:3000/app/books', {
                 title: formData.bookName,
                 author: formData.author,
@@ -87,10 +86,14 @@ const BookForm = () => {
                 description: formData.bookDescription,
                 image: formData.bookImgURL,
             })
-
-            const confirmationModal = document.getElementById("confirmation_modal");
-            confirmationModal?.showModal();
-            resetForm();
+            .then(() => {
+                const confirmationModal = document.getElementById("confirmation_modal");
+                confirmationModal?.showModal();
+                resetForm();
+            })
+            .catch((error) => {
+                console.error("Failed to add book:", error);
+            });
         }
     };
 

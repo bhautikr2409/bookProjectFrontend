@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
+import UpdateBook from "./updateBook";
 
 const Book = () => {
   const [books, setBooks] = useState([]);
+  const [editingBook, setEditingBook] = useState(null);
+  const updateBookRef = useRef(null);
 
   const apiCall = () => {
     axios
       .get("http://localhost:3000/app/books")
       .then((response) => {
-        console.log("response.data:", response.data);
         setBooks(response.data);
       })
       .catch((error) => {
@@ -19,23 +21,43 @@ const Book = () => {
 
   const notify = (message) => toast.success(message);
 
-  const handleDeleteBook = (book) => {
+  const handleDeleteBook = (bookId) => {
     axios
-      .delete(`http://localhost:3000/app/books/${book}`)
+      .delete(`http://localhost:3000/app/books/${bookId}`)
       .then((response) => {
-        console.log("response", response);
         notify("Book deleted successfully!");
         apiCall();
       })
       .catch((error) => {
-        console.error("Error fetching books:", error);
+        console.error("Error deleting book:", error);
         toast.error("Failed to delete the book.");
+      });
+  };
+
+  const handleUpdateBook = (updatedBook) => {
+    axios
+      .put(`http://localhost:3000/app/books/${updatedBook._id}`, updatedBook)
+      .then(() => {
+        notify("Book updated successfully!");
+        apiCall();
+        setEditingBook(null); // Reset editing state
+        updateBookRef.current?.closeModal(); // Close the modal
+      })
+      .catch((error) => {
+        console.error("Error updating book:", error);
+        toast.error("Failed to update the book.");
       });
   };
 
   useEffect(() => {
     apiCall();
   }, []);
+
+  useEffect(() => {
+    if (editingBook) {
+      updateBookRef.current.openModal();
+    }
+  }, [editingBook]);
 
   return (
     <>
@@ -52,7 +74,7 @@ const Book = () => {
               <th>Book title</th>
               <th>Price</th>
               <th>Full Description</th>
-              <th>Delete</th>
+              <th className="text-center">Delete & Update</th>
             </tr>
           </thead>
 
@@ -86,7 +108,6 @@ const Book = () => {
                   <button
                     className="btn btn-ghost btn-xs"
                     onClick={() => {
-                      console.log(index, book.description);
                       document
                         .getElementById(`${index}-my_modal_2`)
                         .showModal();
@@ -94,12 +115,10 @@ const Book = () => {
                   >
                     Description
                   </button>
-
                   <dialog id={`${index}-my_modal_2`} className="modal">
                     <div className="modal-box">
                       <h3 className="font-bold text-lg">{book.title}</h3>
                       <p className="py-4">{book.description}</p>
-                      {console.log("book.description", book.description)}
                     </div>
                     <form method="dialog" className="modal-backdrop">
                       <button>close</button>
@@ -107,7 +126,7 @@ const Book = () => {
                   </dialog>
                 </th>
 
-                <td>
+                <td className="flex justify-center gap-4">
                   <button
                     className="btn btn-error"
                     onClick={() =>
@@ -116,7 +135,6 @@ const Book = () => {
                   >
                     Delete
                   </button>
-
                   <dialog id={`${index}-my_modal_3`} className="modal">
                     <div className="modal-box">
                       <div className="card bg-base-100 image-full w-96 shadow-xl">
@@ -132,7 +150,7 @@ const Book = () => {
                                 className="btn btn-error"
                                 onClick={() => handleDeleteBook(book._id)}
                               >
-                                Conform Delete
+                                Confirm Delete
                               </button>
                             </div>
                           </div>
@@ -143,12 +161,22 @@ const Book = () => {
                       <button>close</button>
                     </form>
                   </dialog>
+                  <button className="btn btn-primary" onClick={() => setEditingBook(book)}>Update</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {editingBook && (
+        <UpdateBook
+          ref={updateBookRef}
+          book={editingBook}
+          onSubmit={handleUpdateBook}
+          onCancel={() => setEditingBook(null)}
+        />
+      )}
     </>
   );
 };
