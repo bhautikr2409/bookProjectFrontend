@@ -8,6 +8,8 @@ const Book = () => {
   const [editingBook, setEditingBook] = useState(null);
   const updateBookRef = useRef(null);
 
+  console.log("editingBook",editingBook)
+
   const apiCall = () => {
     axios
       .get("http://localhost:3000/app/books")
@@ -24,7 +26,7 @@ const Book = () => {
   const handleDeleteBook = (bookId) => {
     axios
       .delete(`http://localhost:3000/app/books/${bookId}`)
-      .then((response) => {
+      .then(() => {
         notify("Book deleted successfully!");
         apiCall();
       })
@@ -39,9 +41,9 @@ const Book = () => {
       .put(`http://localhost:3000/app/books/${updatedBook._id}`, updatedBook)
       .then(() => {
         notify("Book updated successfully!");
-        apiCall();
-        setEditingBook(null); // Reset editing state
-        updateBookRef.current?.closeModal(); // Close the modal
+        apiCall(); 
+        setEditingBook(null); 
+        updateBookRef.current?.closeModal(); 
       })
       .catch((error) => {
         console.error("Error updating book:", error);

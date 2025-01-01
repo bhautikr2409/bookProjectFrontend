@@ -31,9 +31,8 @@ const UpdateBook = forwardRef(({ book, onSubmit, onCancel }, ref) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Prepare the updated book object
         const updatedBook = {
-            _id: book._id, // Ensure the book ID is included
+            _id: book._id,
             title: formData.bookName,
             author: formData.author,
             price: formData.bookPrice,
@@ -42,7 +41,7 @@ const UpdateBook = forwardRef(({ book, onSubmit, onCancel }, ref) => {
         };
 
         onSubmit(updatedBook); // Pass the updated book to the parent
-        modalRef.current?.close(); // Close the modal
+        modalRef.current?.close(); 
     };
 
     const closeConfirmationModal = () => {
