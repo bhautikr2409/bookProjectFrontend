@@ -1,7 +1,11 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState  ,useEffect } from "react";
 
 const BookForm = () => {
+
+    const [loading, setLoading] = useState(false);
+
+
     const [formData, setFormData] = useState({
         bookName: "",
         author: "",
@@ -38,7 +42,7 @@ const BookForm = () => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
-        setErrors((prev) => ({ ...prev, [name]: "" })); // Clear error on change
+        setErrors((prev) => ({ ...prev, [name]: "" })); 
     };
 
     const validateForm = () => {
@@ -51,23 +55,23 @@ const BookForm = () => {
             bookDescription: "",
         };
 
-        if (!formData.bookName) {
+        if (!formData.bookName.trim()) {
             valid = false;
             newErrors.bookName = "Product name is required.";
         }
-        if (!formData.author) {
+        if (!formData.author.trim()) {
             valid = false;
             newErrors.author = "Author name is required.";
         }
-        if (!formData.bookImgURL) {
+        if (!formData.bookImgURL.trim()) {
             valid = false;
             newErrors.bookImgURL = "Product image URL is required.";
-        }
+        } 
         if (!formData.bookPrice || isNaN(Number(formData.bookPrice))) {
             valid = false;
             newErrors.bookPrice = "Valid product price is required.";
         }
-        if (!formData.bookDescription) {
+        if (!formData.bookDescription.trim()) {
             valid = false;
             newErrors.bookDescription = "Product description is required.";
         }
@@ -76,26 +80,50 @@ const BookForm = () => {
         return valid;
     };
 
-    const handleSubmit = (e) => {
+    // const handleSubmit = (e) => {
+    //     e.preventDefault();
+    //     if (validateForm()) {
+    //         axios.post('http://localhost:3000/app/books', {
+    //             title: formData.bookName,
+    //             author: formData.author,
+    //             price: formData.bookPrice,
+    //             description: formData.bookDescription,
+    //             image: formData.bookImgURL,
+    //         })
+    //         .then(() => {
+    //             const confirmationModal = document.getElementById("confirmation_modal");
+    //             confirmationModal?.showModal();
+    //             resetForm();
+    //         })
+    //         .catch((error) => {
+    //             console.error("Failed to add book:", error);
+    //         });
+    //     }
+    // };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-            axios.post('http://localhost:3000/app/books', {
-                title: formData.bookName,
-                author: formData.author,
-                price: formData.bookPrice,
-                description: formData.bookDescription,
-                image: formData.bookImgURL,
-            })
-            .then(() => {
+            setLoading(true);
+            try {
+                await axios.post('http://localhost:3000/app/books', {
+                    title: formData.bookName,
+                    author: formData.author,
+                    price: formData.bookPrice,
+                    description: formData.bookDescription,
+                    image: formData.bookImgURL,
+                });
                 const confirmationModal = document.getElementById("confirmation_modal");
                 confirmationModal?.showModal();
                 resetForm();
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error("Failed to add book:", error);
-            });
+            } finally {
+                setLoading(false);
+            }
         }
     };
+
 
     const handleModalClose = () => {
         resetForm();
@@ -106,6 +134,20 @@ const BookForm = () => {
         const confirmationModal = document.getElementById("confirmation_modal");
         confirmationModal?.close();
     };
+
+
+    useEffect(() => {
+        const savedData = localStorage.getItem("bookFormData");
+        if (savedData) {
+            setFormData(JSON.parse(savedData));
+        }
+    }, []);
+    
+    useEffect(() => {
+        localStorage.setItem("bookFormData", JSON.stringify(formData));
+    }, [formData]);
+    
+
 
     return (
         <>
@@ -223,12 +265,23 @@ const BookForm = () => {
                         </div>
                         {/* Submit Button */}
                         <div className="modal-action">
-                            <button
+                            {/* <button
                                 type="submit"
                                 className="btn bg-blue-500 text-white hover:bg-blue-600"
                             >
                                 Submit
+                            </button> */}
+
+                            <button
+                                type="submit"
+                                className="btn bg-blue-500 text-white hover:bg-blue-600"
+                                disabled={loading}
+                            >
+                                {loading ? "Submitting..." : "Submit"}
                             </button>
+
+
+
                             <button type="button" className="btn" onClick={handleModalClose}>
                                 Close
                             </button>

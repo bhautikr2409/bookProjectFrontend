@@ -8,7 +8,6 @@ const Book = () => {
   const [editingBook, setEditingBook] = useState(null);
   const updateBookRef = useRef(null);
 
-  console.log("editingBook",editingBook)
 
   const apiCall = () => {
     axios
