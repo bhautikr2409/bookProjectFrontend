@@ -80,26 +80,6 @@ const BookForm = () => {
         return valid;
     };
 
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     if (validateForm()) {
-    //         axios.post('http://localhost:3000/app/books', {
-    //             title: formData.bookName,
-    //             author: formData.author,
-    //             price: formData.bookPrice,
-    //             description: formData.bookDescription,
-    //             image: formData.bookImgURL,
-    //         })
-    //         .then(() => {
-    //             const confirmationModal = document.getElementById("confirmation_modal");
-    //             confirmationModal?.showModal();
-    //             resetForm();
-    //         })
-    //         .catch((error) => {
-    //             console.error("Failed to add book:", error);
-    //         });
-    //     }
-    // };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -265,12 +245,6 @@ const BookForm = () => {
                         </div>
                         {/* Submit Button */}
                         <div className="modal-action">
-                            {/* <button
-                                type="submit"
-                                className="btn bg-blue-500 text-white hover:bg-blue-600"
-                            >
-                                Submit
-                            </button> */}
 
                             <button
                                 type="submit"
